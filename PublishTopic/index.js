@@ -1,5 +1,5 @@
 const azure = require('../node_modules/azure');
-const each = require('async/each');
+const each = require('../node_modules/async/each');
 
 const common = require('../common');
 const environment = require('../environment');
