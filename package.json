@@ -1,0 +1,9 @@
+{
+  "name": "pubsubserverless",
+  "version": "1.0.0",
+  "dependencies": {
+    "azure": "^2.2.1-preview",
+    "azure-arm-documentdb": "^1.0.3-preview",
+    "azure-search": "0.0.20"
+  }
+}

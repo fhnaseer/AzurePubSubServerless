@@ -1,6 +1,6 @@
-const azure = require('../node_modules/azure');
-const common = require('../common');
-const environment = require('../environment');
+const azure = require('azure');
+//const common = require('../common');
+const environment = require('../Shared/environment');
 
 module.exports = function(context, req) {
   if (req.body) {
@@ -8,7 +8,7 @@ module.exports = function(context, req) {
     var serviceBusService = azure.createServiceBusService(
       environment.topicsConnectionString
     );
-    common.createMessageQueues(serviceBusService, topics);
+    //common.createMessageQueues(serviceBusService, topics);
 
     context.res = {
       status: 200,
