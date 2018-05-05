@@ -4,11 +4,13 @@ const environment = require('../Shared/environment');
 
 let topics = {};
 let subscriberId = '';
+let tableName = 'topics';
 
 module.exports = function(context, req) {
   if (req.body) {
     topics = req.body.topics;
     subscriberId = req.body.subscriberId;
+    createMessageQueues();
     createTables(context);
   } else {
     context.res = {
@@ -21,7 +23,7 @@ module.exports = function(context, req) {
 
 function createTables(context) {
   var tableService = azureStorage.createTableService(environment.storageConnectionString);
-  tableService.createTableIfNotExists(subscriberId, function(error, result, response) {
+  tableService.createTableIfNotExists(tableName, function(error, result, response) {
     if (error) {
       context.res = {
         status: 400,
@@ -29,11 +31,10 @@ function createTables(context) {
       };
       context.done();
     } else {
-      createMessageQueues();
       topics.map(topic => {
         var task = {
-          PartitionKey: { _: 'topics' },
-          RowKey: { _: topic }
+          PartitionKey: { _: topic },
+          RowKey: { _: subscriberId }
         };
         tableService.insertEntity(subscriberId, task, function(error, result, response) {
           if (!error) {
