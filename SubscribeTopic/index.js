@@ -36,7 +36,7 @@ function createTables(context) {
           PartitionKey: { _: topic },
           RowKey: { _: subscriberId }
         };
-        tableService.insertEntity(subscriberId, task, function(error, result, response) {
+        tableService.insertEntity(tableName, task, function(error, result, response) {
           if (!error) {
             // Entity inserted
           }
