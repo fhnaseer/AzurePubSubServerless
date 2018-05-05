@@ -7,6 +7,11 @@
     "azure-functions-cli": "^1.0.0-beta.94",
     "azure-search": "0.0.20",
     "azure-storage": "^2.8.2",
+    "eslint": "^4.19.1",
     "uuid": "^3.2.1"
+  },
+  "devDependencies": {
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.11.0"
   }
 }
