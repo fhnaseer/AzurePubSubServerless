@@ -9,7 +9,7 @@ module.exports = function(context, req) {
       environment.topicsConnectionString
     );
     createMessageQueues(serviceBusService, topics);
-    publishMessages(context, topics, message);
+    publishMessages(serviceBusService, topics, message);
     context.res = {
       status: 200,
       body: 'Messages published,'
@@ -24,11 +24,8 @@ module.exports = function(context, req) {
 };
 
 async function publishMessages(serviceBusService, topics, message) {
-  var messageBody = {
-    text: message
-  };
   const promises = topics.map(async topic => {
-    serviceBusService.sendQueueMessage(topic, messageBody, function(error) {});
+    serviceBusService.sendQueueMessage(topic, message, function(error) {});
   });
   await Promise.all(promises);
 }

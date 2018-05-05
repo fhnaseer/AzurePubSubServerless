@@ -1,3 +1,6 @@
 {
-  "watchDirectories": ["Shared"]
+  "watchDirectories": [
+    "Shared"
+  ],
+  "id": "22b527a66cc94d4e92ac2a3153215804"
 }
