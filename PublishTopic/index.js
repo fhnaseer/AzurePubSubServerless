@@ -1,15 +1,24 @@
 const azure = require('azure');
+const azureStorage = require('azure-storage');
 const environment = require('../Shared/environment');
+let tableName = 'topics';
 
 module.exports = function(context, req) {
   if (req.body) {
     let message = req.body.message;
     let topics = req.body.topics;
-    var serviceBusService = azure.createServiceBusService(
-      environment.topicsConnectionString
-    );
-    createMessageQueues(serviceBusService, topics);
-    publishMessages(serviceBusService, topics, message);
+
+    var tableService = azureStorage.createTableService(environment.storageConnectionString);
+    topics.map(topic => {
+      var query = new azureStorage.TableQuery().select(['RowKey']).where('PartitionKey eq ?', topic);
+      tableService.queryEntities(tableName, query, null, function(error, result, response) {
+        if (!error) {
+          context.log(response.body.value);
+          publishMessages(response.body.value, message);
+        }
+      });
+    });
+
     context.res = {
       status: 200,
       body: 'Messages published,'
@@ -23,14 +32,9 @@ module.exports = function(context, req) {
   context.done();
 };
 
-function publishMessages(serviceBusService, topics, message) {
+function publishMessages(topics, message) {
+  var serviceBusService = azure.createServiceBusService(environment.topicsConnectionString);
   topics.map(topic => {
-    serviceBusService.sendQueueMessage(topic, message, function(error) {});
-  });
-}
-
-function createMessageQueues(serviceBusService, topics) {
-  topics.map(topic => {
-    serviceBusService.createQueueIfNotExists(topic, function(error) {});
+    serviceBusService.sendQueueMessage(topic.RowKey, message, function(error) {});
   });
 }
