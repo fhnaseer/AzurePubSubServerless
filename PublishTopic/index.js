@@ -10,7 +10,7 @@ module.exports = function(context, req) {
 
     var tableService = azureStorage.createTableService(environment.storageConnectionString);
     topics.map(topic => {
-      var query = new azureStorage.TableQuery().select(['RowKey']).where('PartitionKey eq ?', topic);
+      var query = new azureStorage.TableQuery().select(['PartitionKey', 'RowKey']).where('PartitionKey eq ?', topic);
       tableService.queryEntities(tableName, query, null, function(error, result, response) {
         if (!error) {
           context.log(response.body.value);
@@ -35,6 +35,10 @@ module.exports = function(context, req) {
 function publishMessages(topics, message) {
   var serviceBusService = azure.createServiceBusService(environment.topicsConnectionString);
   topics.map(topic => {
-    serviceBusService.sendQueueMessage(topic.RowKey, message, function(error) {});
+    let completeMessage = {
+      topic: topic.PartitionKey,
+      message: message
+    };
+    serviceBusService.sendQueueMessage(topic.RowKey, JSON.stringify(completeMessage), function(error) {});
   });
 }
