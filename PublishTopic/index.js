@@ -23,16 +23,14 @@ module.exports = function(context, req) {
   context.done();
 };
 
-async function publishMessages(serviceBusService, topics, message) {
-  const promises = topics.map(async topic => {
+function publishMessages(serviceBusService, topics, message) {
+  topics.map(topic => {
     serviceBusService.sendQueueMessage(topic, message, function(error) {});
   });
-  await Promise.all(promises);
 }
 
-async function createMessageQueues(serviceBusService, topics) {
-  const promises = topics.map(async topic => {
+function createMessageQueues(serviceBusService, topics) {
+  topics.map(topic => {
     serviceBusService.createQueueIfNotExists(topic, function(error) {});
   });
-  await Promise.all(promises);
 }

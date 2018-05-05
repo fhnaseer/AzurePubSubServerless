@@ -24,9 +24,9 @@ module.exports = function(context, req) {
   context.done();
 };
 
-async function createMessageQueues(serviceBusService, topics) {
-  const promises = topics.map(async topic => {
+function createMessageQueues(serviceBusService, topics) {
+  const promises = topics.map(topic => {
     serviceBusService.createQueueIfNotExists(topic, function(error) {});
   });
-  await Promise.all(promises);
+  Promise.all(promises);
 }
