@@ -1,16 +1,64 @@
-module.exports = function(context, req) {
-  context.log('JavaScript HTTP trigger function processed a request.');
+const azure = require('azure');
+const azureStorage = require('azure-storage');
+const environment = require('../Shared/environment');
 
-  if (req.query.name || (req.body && req.body.name)) {
-    context.res = {
-      // status: 200, /* Defaults to 200 */
-      body: 'Hello ' + (req.query.name || req.body.name)
-    };
+let topics = {};
+let subscriberId = '';
+let tableName = 'content';
+
+module.exports = function(context, req) {
+  if (req.body) {
+    topics = req.body.content;
+    subscriberId = req.body.subscriberId;
+    createMessageQueue();
+    createTables(context);
   } else {
     context.res = {
       status: 400,
-      body: 'Please pass a name on the query string or in the request body'
+      body: 'Error,'
     };
+    context.done();
   }
-  context.done();
 };
+
+function createTables(context) {
+  var tableService = azureStorage.createTableService(environment.storageConnectionString);
+  tableService.createTableIfNotExists(tableName, function(error, result, response) {
+    if (error) {
+      context.res = {
+        status: 400,
+        body: error
+      };
+      context.done();
+    } else {
+      context.log(topics[0]);
+      topics.map(topic => {
+        var task = {
+          PartitionKey: { _: topic.key },
+          RowKey: { _: subscriberId },
+          Value: { _: topic.value },
+          Condition: { _: topic.condition }
+        };
+        tableService.insertEntity(tableName, task, function(error, result, response) {
+          if (!error) {
+            // Entity inserted
+          }
+        });
+      });
+
+      context.res = {
+        status: 200,
+        body: {
+          connectionString: environment.topicsConnectionString,
+          queueName: subscriberId
+        }
+      };
+      context.done();
+    }
+  });
+}
+
+function createMessageQueue() {
+  var serviceBusService = azure.createServiceBusService(environment.topicsConnectionString);
+  serviceBusService.createQueueIfNotExists(subscriberId, function(error) {});
+}
