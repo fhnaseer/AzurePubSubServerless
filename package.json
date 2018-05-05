@@ -4,6 +4,7 @@
   "dependencies": {
     "azure": "^2.2.1-preview",
     "azure-arm-documentdb": "^1.0.3-preview",
+    "azure-functions-cli": "^1.0.0-beta.94",
     "azure-search": "0.0.20"
   }
 }
