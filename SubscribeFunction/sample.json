@@ -1,0 +1,7 @@
+{
+  "subscriberId": "subscriberc9bfa9c050a411e89a87cdec31ff1efc",
+  "subscriptionType": "Text",
+  "matchingInputs": "publication",
+  "matchingFunction":
+    "let populations = {'new zealand': 4693000, 'germany': 8267000}; let sentence = nlp(publication); let places = sentence.places().out('array'); return populations[places[0]] > 4000000;"
+}
