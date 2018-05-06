@@ -1,0 +1,15 @@
+{
+  "message": "Azure1234456789",
+  "content": [
+    {
+      "key": "computer",
+      "value": "intel",
+      "condition": "="
+    },
+    {
+      "key": "money",
+      "value": "1000",
+      "condition": ">="
+    }
+  ]
+}
