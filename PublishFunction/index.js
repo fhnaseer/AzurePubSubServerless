@@ -37,11 +37,12 @@ function publishMessages(topics) {
   var serviceBusService = azure.createServiceBusService(environment.topicsConnectionString);
   topics.map(topic => {
     let matchingFunction = new Function(topic.MatchingInputs, topic.MatchingFunction);
-    let addMessage = matchingFunction(message);
-    if (addMessage) {
+    let value = matchingFunction(message);
+    if (value) {
       let completeMessage = {
         topic: topic.PartitionKey,
-        message: message
+        message: message,
+        value: value
       };
       serviceBusService.sendQueueMessage(topic.RowKey, JSON.stringify(completeMessage), function(error) {});
     }
