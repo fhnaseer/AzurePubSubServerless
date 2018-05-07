@@ -3,9 +3,7 @@ const azureStorage = require('azure-storage');
 const environment = require('../Shared/environment');
 
 let subscriberId = '';
-let topicsTable = 'topics';
-let contentTable = 'content';
-let functionsTable = 'functions';
+let tableNames = ['topics', 'content', 'functions'];
 
 module.exports = function(context, req) {
   if (req.body) {
@@ -35,20 +33,13 @@ function deleteMessageQueue() {
 function deleteSubscriberData() {
   var tableService = azureStorage.createTableService(environment.storageConnectionString);
   var query = new azureStorage.TableQuery().select(['PartitionKey', 'RowKey']).where('RowKey eq ?', subscriberId);
-  tableService.queryEntities(topicsTable, query, null, function(error, result, response) {
-    if (!error) {
-      deleteTableRow(tableService, response.body.value);
-    }
-  });
-  tableService.queryEntities(contentTable, query, null, function(error, result, response) {
-    if (!error) {
-      deleteTableRow(tableService, response.body.value);
-    }
-  });
-  tableService.queryEntities(functionsTable, query, null, function(error, result, response) {
-    if (!error) {
-      deleteTableRow(tableService, response.body.value);
-    }
+
+  tableNames.map(tableName => {
+    tableService.queryEntities(tableName, query, null, function(error, result, response) {
+      if (!error) {
+        deleteTableRow(tableService, tableName, response.body.value);
+      }
+    });
   });
 }
 
