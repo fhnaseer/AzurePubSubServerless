@@ -1,4 +1,3 @@
-const azure = require('azure');
 const azureStorage = require('azure-storage');
 const environment = require('../Shared/environment');
 const common = require('../Shared/common');

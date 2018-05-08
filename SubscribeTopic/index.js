@@ -1,11 +1,9 @@
-const azure = require('azure');
 const azureStorage = require('azure-storage');
 const environment = require('../Shared/environment');
 const common = require('../Shared/common');
 
 let topics = {};
 let subscriberId = '';
-let tableName = 'topics';
 
 module.exports = function(context, req) {
   if (req.body) {
@@ -26,6 +24,6 @@ function addTableData() {
       PartitionKey: { _: topic },
       RowKey: { _: subscriberId }
     };
-    tableService.insertEntity(tableName, task, function(error) {});
+    tableService.insertEntity(common.topicsTableName, task, function(error) {});
   });
 }

@@ -1,64 +1,31 @@
-const azure = require('azure');
 const azureStorage = require('azure-storage');
 const environment = require('../Shared/environment');
+const common = require('../Shared/common');
 
 let topics = {};
 let subscriberId = '';
-let tableName = 'content';
 
 module.exports = function(context, req) {
   if (req.body) {
     topics = req.body.content;
     subscriberId = req.body.subscriberId;
-    createMessageQueue();
-    createTables(context);
+    common.createMessageQueue(subscriberId);
+    common.createTable(common.topicsTableName, context, environment.storageConnectionString, addTableData);
+    common.sendQueueConnectionResponse(context, subscriberId);
   } else {
-    context.res = {
-      status: 400,
-      body: 'Error,'
-    };
-    context.done();
+    common.sendErrorResponse(context, 'Please pass subscriberId and content in the request body');
   }
 };
 
-function createTables(context) {
+function addTableData() {
   var tableService = azureStorage.createTableService(environment.storageConnectionString);
-  tableService.createTableIfNotExists(tableName, function(error, result, response) {
-    if (error) {
-      context.res = {
-        status: 400,
-        body: error
-      };
-      context.done();
-    } else {
-      context.log(topics[0]);
-      topics.map(topic => {
-        var task = {
-          PartitionKey: { _: topic.key },
-          RowKey: { _: subscriberId },
-          Value: { _: topic.value },
-          Condition: { _: topic.condition }
-        };
-        tableService.insertEntity(tableName, task, function(error, result, response) {
-          if (!error) {
-            // Entity inserted
-          }
-        });
-      });
-
-      context.res = {
-        status: 200,
-        body: {
-          connectionString: environment.topicsConnectionString,
-          queueName: subscriberId
-        }
-      };
-      context.done();
-    }
+  topics.map(topic => {
+    var task = {
+      PartitionKey: { _: topic.key },
+      RowKey: { _: subscriberId },
+      Value: { _: topic.value },
+      Condition: { _: topic.condition }
+    };
+    tableService.insertEntity(common.contentTableName, task, function(error) {});
   });
-}
-
-function createMessageQueue() {
-  var serviceBusService = azure.createServiceBusService(environment.topicsConnectionString);
-  serviceBusService.createQueueIfNotExists(subscriberId, function(error) {});
 }

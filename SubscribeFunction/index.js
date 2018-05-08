@@ -1,9 +1,8 @@
-const azure = require('azure');
 const azureStorage = require('azure-storage');
 const environment = require('../Shared/environment');
+const common = require('../Shared/common');
 
 let subscriberId = '';
-let tableName = 'functions';
 let subscriptionType = '';
 let matchingInputs = '';
 let matchingFunction = '';
@@ -14,52 +13,21 @@ module.exports = function(context, req) {
     subscriptionType = req.body.subscriptionType;
     matchingInputs = req.body.matchingInputs;
     matchingFunction = req.body.matchingFunction;
-    createMessageQueue();
-    createTables(context);
+    common.createMessageQueue();
+    common.createTable(common.functionTableName, context, environment.storageConnectionString, addTableData);
+    common.sendQueueConnectionResponse(context, subscriberId);
   } else {
-    context.res = {
-      status: 400,
-      body: 'Please pass a name on the query string or in the request body'
-    };
-    context.done();
+    common.sendErrorResponse(context, 'Please pass subscriberId, subscriptionType, matchingInputs and matchingFunction in the request body');
   }
 };
 
-function createTables(context) {
+function addTableData() {
   var tableService = azureStorage.createTableService(environment.storageConnectionString);
-  tableService.createTableIfNotExists(tableName, function(error, result, response) {
-    if (error) {
-      context.res = {
-        status: 400,
-        body: error
-      };
-      context.done();
-    } else {
-      var task = {
-        PartitionKey: { _: subscriptionType },
-        RowKey: { _: subscriberId },
-        MatchingInputs: { _: matchingInputs },
-        MatchingFunction: { _: matchingFunction }
-      };
-      tableService.insertEntity(tableName, task, function(error, result, response) {
-        if (!error) {
-          // Entity inserted
-        }
-      });
-
-      context.res = {
-        status: 200,
-        body: {
-          connectionString: environment.topicsConnectionString,
-          queueName: subscriberId
-        }
-      };
-      context.done();
-    }
-  });
-}
-
-function createMessageQueue() {
-  var serviceBusService = azure.createServiceBusService(environment.topicsConnectionString);
-  serviceBusService.createQueueIfNotExists(subscriberId, function(error) {});
+  var task = {
+    PartitionKey: { _: subscriptionType },
+    RowKey: { _: subscriberId },
+    MatchingInputs: { _: matchingInputs },
+    MatchingFunction: { _: matchingFunction }
+  };
+  tableService.insertEntity(common.functionTableName, task, function(error, result, response) {});
 }
