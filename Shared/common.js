@@ -25,9 +25,7 @@ function sendQueueConnectionResponse(context, queueName) {
 function sendResponse(context, message, statusCode) {
   context.res = {
     status: statusCode,
-    body: {
-      message
-    }
+    body: message
   };
   context.done();
 }
