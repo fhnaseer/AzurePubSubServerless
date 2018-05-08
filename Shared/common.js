@@ -15,6 +15,13 @@ function sendErrorResponse(context, message) {
   sendResponse(context, message, 400);
 }
 
+function sendQueueConnectionResponse(context, queueName) {
+  sendOkResponse(context, {
+    connectionString: environment.topicsConnectionString,
+    queueName: queueName
+  });
+}
+
 function sendResponse(context, message, statusCode) {
   context.res = {
     status: statusCode,
@@ -25,13 +32,35 @@ function sendResponse(context, message, statusCode) {
   context.done();
 }
 
+function createMessageQueue(queueName, connectionString = environment.topicsConnectionString) {
+  var serviceBusService = azure.createServiceBusService(connectionString);
+  serviceBusService.createQueueIfNotExists(queueName, function(error) {});
+}
+
 function deleteMessageQueue(queueName, connectionString = environment.topicsConnectionString) {
   var serviceBusService = azure.createServiceBusService(connectionString);
   serviceBusService.deleteQueue(queueName, function(error) {});
 }
 
+function createTable(tableName, context, connectionString = environment.storageConnectionString, callback = null) {
+  var tableService = azureStorage.createTableService(environment.storageConnectionString);
+  tableService.createTableIfNotExists(tableName, function(error, result, response) {
+    if (error) {
+      sendErrorResponse(confirm, error);
+    } else {
+      callback();
+    }
+  });
+}
+
 module.exports = {
+  topicsTableName,
+  contentTableName,
+  functionTableName,
   sendOkResponse,
   sendErrorResponse,
-  deleteMessageQueue
+  sendQueueConnectionResponse,
+  createMessageQueue,
+  deleteMessageQueue,
+  createTable
 };
