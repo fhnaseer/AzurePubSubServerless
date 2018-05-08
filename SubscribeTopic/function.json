@@ -13,5 +13,8 @@
    "name": "res"
   }
  ],
- "scriptFile": "index.js"
+ "scriptFile": "../.funcpack/index.js",
+ "_originalEntryPoint": false,
+ "_originalScriptFile": "index.js",
+ "entryPoint": "SubscribeTopic"
 }
