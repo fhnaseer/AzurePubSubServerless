@@ -1,42 +1,38 @@
 const azure = require('azure');
 const azureStorage = require('azure-storage');
 const environment = require('../Shared/environment');
-let tableName = 'content';
+const common = require('../Shared/common');
+
 let message = '';
 let contents = {};
 
 module.exports = function(context, req) {
   if (req.body) {
-    let message = req.body.message;
+    message = req.body.message;
     contents = req.body.content;
-
-    var tableService = azureStorage.createTableService(environment.storageConnectionString);
-    contents.map(content => {
-      var query = new azureStorage.TableQuery().select(['PartitionKey', 'RowKey', 'Value', 'Condition']).where('PartitionKey eq ?', content.key);
-      tableService.queryEntities(tableName, query, null, function(error, result, response) {
-        if (!error) {
-          context.log(response.body.value);
-          publishMessages(response.body.value, message);
-        }
-      });
-    });
-
-    context.res = {
-      status: 200,
-      body: 'Messages published,'
-    };
+    queryTableData();
+    common.sendOkResponse(context, 'Messages published,');
   } else {
-    context.res = {
-      status: 400,
-      body: 'Please pass a name on the query string or in the request body'
-    };
+    common.sendErrorResponse(context, 'Please pass message and topics list in the request body');
   }
-  context.done();
 };
+
+function queryTableData(context) {
+  var tableService = azureStorage.createTableService(environment.storageConnectionString);
+  contents.map(content => {
+    var query = new azureStorage.TableQuery().select(['PartitionKey', 'RowKey', 'Value', 'Condition']).where('PartitionKey eq ?', content.key);
+    tableService.queryEntities(common.contentTableName, query, null, function(error, result, response) {
+      if (error) {
+        common.sendErrorResponse(context, error);
+      } else {
+        publishMessages(response.body.value, message);
+      }
+    });
+  });
+}
 
 function publishMessages(topics, message) {
   let content;
-
   var serviceBusService = azure.createServiceBusService(environment.topicsConnectionString);
   topics.map(topic => {
     content = findObjectByKey(contents, 'key', topic.PartitionKey);

@@ -1,36 +1,35 @@
 const azure = require('azure');
 const azureStorage = require('azure-storage');
 const environment = require('../Shared/environment');
-let tableName = 'topics';
+const common = require('../Shared/common');
+
+let message = '';
+let topics = {};
 
 module.exports = function(context, req) {
   if (req.body) {
-    let message = req.body.message;
-    let topics = req.body.topics;
-
-    var tableService = azureStorage.createTableService(environment.storageConnectionString);
-    topics.map(topic => {
-      var query = new azureStorage.TableQuery().select(['PartitionKey', 'RowKey']).where('PartitionKey eq ?', topic);
-      tableService.queryEntities(tableName, query, null, function(error, result, response) {
-        if (!error) {
-          context.log(response.body.value);
-          publishMessages(response.body.value, message);
-        }
-      });
-    });
-
-    context.res = {
-      status: 200,
-      body: 'Messages published,'
-    };
+    message = req.body.message;
+    topics = req.body.topics;
+    queryTableData();
+    common.sendOkResponse(context, 'Messages published,');
   } else {
-    context.res = {
-      status: 400,
-      body: 'Please pass a name on the query string or in the request body'
-    };
+    common.sendErrorResponse(context, 'Please pass message and topics list in the request body');
   }
-  context.done();
 };
+
+function queryTableData(context) {
+  var tableService = azureStorage.createTableService(environment.storageConnectionString);
+  topics.map(topic => {
+    var query = new azureStorage.TableQuery().select(['PartitionKey', 'RowKey']).where('PartitionKey eq ?', topic);
+    tableService.queryEntities(common.topicsTableName, query, null, function(error, result, response) {
+      if (error) {
+        common.sendErrorResponse(context, error);
+      } else {
+        publishMessages(response.body.value, message);
+      }
+    });
+  });
+}
 
 function publishMessages(topics, message) {
   var serviceBusService = azure.createServiceBusService(environment.topicsConnectionString);

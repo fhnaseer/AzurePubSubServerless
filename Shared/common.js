@@ -46,7 +46,7 @@ function createTable(tableName, context, connectionString = environment.storageC
   var tableService = azureStorage.createTableService(environment.storageConnectionString);
   tableService.createTableIfNotExists(tableName, function(error, result, response) {
     if (error) {
-      sendErrorResponse(confirm, error);
+      sendErrorResponse(context, error);
     } else {
       callback();
     }
