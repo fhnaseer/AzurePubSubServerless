@@ -1,6 +1,5 @@
 const azure = require('azure');
 const azureStorage = require('azure-storage');
-const environment = require('./environment');
 
 let topicsTableName = 'topics';
 let contentTableName = 'content';
@@ -17,7 +16,7 @@ function sendErrorResponse(context, message) {
 
 function sendQueueConnectionResponse(context, queueName) {
   sendOkResponse(context, {
-    connectionString: environment.topicsConnectionString,
+    connectionString: process.env.TopicsConnectionString,
     queueName: queueName
   });
 }
@@ -30,18 +29,18 @@ function sendResponse(context, message, statusCode) {
   context.done();
 }
 
-function createMessageQueue(queueName, connectionString = environment.topicsConnectionString) {
+function createMessageQueue(queueName, connectionString = process.env.TopicsConnectionString) {
   var serviceBusService = azure.createServiceBusService(connectionString);
   serviceBusService.createQueueIfNotExists(queueName, function(error) {});
 }
 
-function deleteMessageQueue(queueName, connectionString = environment.topicsConnectionString) {
+function deleteMessageQueue(queueName, connectionString = process.env.TopicsConnectionString) {
   var serviceBusService = azure.createServiceBusService(connectionString);
   serviceBusService.deleteQueue(queueName, function(error) {});
 }
 
-function createTable(tableName, context, connectionString = environment.storageConnectionString, callback = null) {
-  var tableService = azureStorage.createTableService(environment.storageConnectionString);
+function createTable(tableName, context, connectionString = process.env.StorageConnectionString, callback = null) {
+  var tableService = azureStorage.createTableService(process.env.StorageConnectionString);
   tableService.createTableIfNotExists(tableName, function(error, result, response) {
     if (error) {
       sendErrorResponse(context, error);

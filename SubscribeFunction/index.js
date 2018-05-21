@@ -1,5 +1,4 @@
 const azureStorage = require('azure-storage');
-const environment = require('../Shared/environment');
 const common = require('../Shared/common');
 
 let subscriberId = '';
@@ -14,7 +13,7 @@ module.exports = function(context, req) {
     matchingInputs = req.body.matchingInputs;
     matchingFunction = req.body.matchingFunction;
     common.createMessageQueue();
-    common.createTable(common.functionTableName, context, environment.storageConnectionString, addTableData);
+    common.createTable(common.functionTableName, context, process.env.StorageConnectionString, addTableData);
     common.sendQueueConnectionResponse(context, subscriberId);
   } else {
     common.sendErrorResponse(context, 'Please pass subscriberId, subscriptionType, matchingInputs and matchingFunction in the request body');
@@ -22,7 +21,7 @@ module.exports = function(context, req) {
 };
 
 function addTableData() {
-  var tableService = azureStorage.createTableService(environment.storageConnectionString);
+  var tableService = azureStorage.createTableService(process.env.StorageConnectionString);
   var task = {
     PartitionKey: { _: subscriptionType },
     RowKey: { _: subscriberId },

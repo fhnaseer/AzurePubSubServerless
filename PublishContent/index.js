@@ -1,6 +1,5 @@
 const azure = require('azure');
 const azureStorage = require('azure-storage');
-const environment = require('../Shared/environment');
 const common = require('../Shared/common');
 
 let message = '';
@@ -18,7 +17,7 @@ module.exports = function(context, req) {
 };
 
 function queryTableData(context) {
-  var tableService = azureStorage.createTableService(environment.storageConnectionString);
+  var tableService = azureStorage.createTableService(process.env.StorageConnectionString);
   contents.map(content => {
     var query = new azureStorage.TableQuery().select(['PartitionKey', 'RowKey', 'Value', 'Condition']).where('PartitionKey eq ?', content.key);
     tableService.queryEntities(common.contentTableName, query, null, function(error, result, response) {
@@ -33,7 +32,7 @@ function queryTableData(context) {
 
 function publishMessages(topics, message) {
   let content;
-  var serviceBusService = azure.createServiceBusService(environment.topicsConnectionString);
+  var serviceBusService = azure.createServiceBusService(process.env.TopicsConnectionString);
   topics.map(topic => {
     content = findObjectByKey(contents, 'key', topic.PartitionKey);
     var addMessage = checkConditions(topic.Condition, content.value, topic.Value);
