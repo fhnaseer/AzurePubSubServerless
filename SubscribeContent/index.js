@@ -9,7 +9,7 @@ module.exports = function(context, req) {
     topics = req.body.content;
     subscriberId = req.body.subscriberId;
     common.createMessageQueue(subscriberId);
-    common.createTable(common.topicsTableName, context, process.env.StorageConnectionString, addTableData);
+    common.createTable(common.contentTableName, context, process.env.StorageConnectionString, addTableData);
     common.sendQueueConnectionResponse(context, subscriberId);
   } else {
     common.sendErrorResponse(context, 'Please pass subscriberId and content in the request body');
