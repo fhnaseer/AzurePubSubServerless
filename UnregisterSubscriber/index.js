@@ -1,4 +1,3 @@
-const azureStorage = require('azure-storage');
 const common = require('../Shared/common');
 
 let subscriberId = '';
@@ -7,7 +6,7 @@ let tableNames = ['topics', 'content', 'functions'];
 module.exports = function(context, req) {
   if (req.body) {
     subscriberId = req.body.subscriberId;
-    common.deleteMessageQueue(subscriberId);
+    deleteMessageQueue(subscriberId);
     deleteSubscriberData();
     common.sendOkResponse(context, 'Subscriber removed,');
   } else {
@@ -16,7 +15,7 @@ module.exports = function(context, req) {
 };
 
 function deleteSubscriberData() {
-  var tableService = azureStorage.createTableService(process.env.StorageConnectionString);
+  var tableService = common.getTableService();
   var query = new azureStorage.TableQuery().select(['PartitionKey', 'RowKey']).where('RowKey eq ?', subscriberId);
 
   tableNames.map(tableName => {
@@ -36,4 +35,9 @@ function deleteTableRow(tableService, tableName, topics) {
     };
     tableService.deleteEntity(tableName, task, function(error, response) {});
   });
+}
+
+function deleteMessageQueue(queueName, connectionString = process.env.TopicsConnectionString) {
+  var serviceBusService = common.getServiceBusService();
+  serviceBusService.deleteQueue(queueName, function(error) {});
 }

@@ -1,5 +1,3 @@
-const azure = require('azure');
-const azureStorage = require('azure-storage');
 const common = require('../Shared/common');
 
 let subscriptionType = '';
@@ -18,7 +16,7 @@ module.exports = function(context, req) {
 };
 
 function queryTableData(context) {
-  var tableService = azureStorage.createTableService(process.env.StorageConnectionString);
+  var tableService = common.getTableService();
   var query = new azureStorage.TableQuery().select(['PartitionKey', 'RowKey', 'MatchingInputs', 'MatchingFunction']).where('PartitionKey eq ?', subscriptionType);
   tableService.queryEntities(common.functionTableName, query, null, function(error, result, response) {
     if (error) {
@@ -30,7 +28,7 @@ function queryTableData(context) {
 }
 
 function publishMessages(topics) {
-  var serviceBusService = azure.createServiceBusService(process.env.TopicsConnectionString);
+  var serviceBusService = common.getServiceBusService();
   topics.map(topic => {
     let matchingFunction = new Function(topic.MatchingInputs, topic.MatchingFunction);
     let value = matchingFunction(message);

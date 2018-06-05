@@ -1,5 +1,3 @@
-const azure = require('azure');
-const azureStorage = require('azure-storage');
 const common = require('../Shared/common');
 
 let message = '';
@@ -17,7 +15,7 @@ module.exports = function(context, req) {
 };
 
 function queryTableData(context) {
-  var tableService = azureStorage.createTableService(process.env.StorageConnectionString);
+  var tableService = common.getTableService();
   topics.map(topic => {
     var query = new azureStorage.TableQuery().select(['PartitionKey', 'RowKey']).where('PartitionKey eq ?', topic);
     tableService.queryEntities(common.topicsTableName, query, null, function(error, result, response) {
@@ -31,7 +29,7 @@ function queryTableData(context) {
 }
 
 function publishMessages(topics, message) {
-  var serviceBusService = azure.createServiceBusService(process.env.TopicsConnectionString);
+  var serviceBusService = common.getServiceBusService();
   topics.map(topic => {
     let completeMessage = {
       topic: topic.PartitionKey,

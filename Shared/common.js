@@ -29,18 +29,13 @@ function sendResponse(context, message, statusCode) {
   context.done();
 }
 
-function createMessageQueue(queueName, connectionString = process.env.TopicsConnectionString) {
-  var serviceBusService = azure.createServiceBusService(connectionString);
+function createMessageQueue(queueName) {
+  var serviceBusService = getServiceBusService();
   serviceBusService.createQueueIfNotExists(queueName, function(error) {});
 }
 
-function deleteMessageQueue(queueName, connectionString = process.env.TopicsConnectionString) {
-  var serviceBusService = azure.createServiceBusService(connectionString);
-  serviceBusService.deleteQueue(queueName, function(error) {});
-}
-
-function createTable(tableName, context, connectionString = process.env.StorageConnectionString, callback = null) {
-  var tableService = azureStorage.createTableService(process.env.StorageConnectionString);
+function createTable(tableName, context, callback = null) {
+  var tableService = getTableService();
   tableService.createTableIfNotExists(tableName, function(error, result, response) {
     if (error) {
       sendErrorResponse(context, error);
@@ -48,6 +43,14 @@ function createTable(tableName, context, connectionString = process.env.StorageC
       callback();
     }
   });
+}
+
+function getTableService() {
+  return azureStorage.createTableService(process.env.StorageConnectionString);
+}
+
+function getServiceBusService() {
+  return azure.createServiceBusService(connectionString);
 }
 
 module.exports = {
@@ -58,6 +61,7 @@ module.exports = {
   sendErrorResponse,
   sendQueueConnectionResponse,
   createMessageQueue,
-  deleteMessageQueue,
-  createTable
+  createTable,
+  getTableService,
+  getServiceBusService
 };
