@@ -1,4 +1,5 @@
 const common = require('../Shared/common');
+const azureStorage = require('azure-storage');
 
 let message = '';
 let contents = {};
