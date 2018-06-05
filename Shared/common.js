@@ -16,7 +16,7 @@ function sendErrorResponse(context, message) {
 
 function sendQueueConnectionResponse(context, queueName) {
   sendOkResponse(context, {
-    connectionString: process.env.TopicsConnectionString,
+    connectionString: process.env.ServiceBusConnectionString,
     queueName: queueName
   });
 }
@@ -50,7 +50,7 @@ function getTableService() {
 }
 
 function getServiceBusService() {
-  return azure.createServiceBusService(connectionString);
+  return azure.createServiceBusService(process.env.ServiceBusConnectionString);
 }
 
 module.exports = {

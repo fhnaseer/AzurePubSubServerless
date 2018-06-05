@@ -4,5 +4,5 @@ const common = require('../Shared/common');
 module.exports = function(context, req) {
   let subscriberId = 'subscriber' + uuidv1().replace(/-/g, '');
   common.createMessageQueue(subscriberId);
-  common.sendOkResponse(context, { id: subscriberId });
+  common.sendQueueConnectionResponse(context, subscriberId);
 };
