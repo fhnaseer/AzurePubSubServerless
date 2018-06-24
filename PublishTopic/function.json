@@ -13,8 +13,5 @@
    "name": "res"
   }
  ],
- "scriptFile": "../.funcpack/index.js",
- "_originalEntryPoint": false,
- "_originalScriptFile": "index.js",
- "entryPoint": "PublishTopic"
+ "scriptFile": "index.js"
 }

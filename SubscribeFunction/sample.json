@@ -1,6 +1,7 @@
 {
   "subscriberId": "subscriberc9bfa9c050a411e89a87cdec31ff1efc",
-  "subscriptionType": "Text",
-  "matchingInputs": "index",
-  "matchingFunction": "let populations = {'New Zealand': 4693000, 'Germany': 8267000}; return populations[index];"
+  "functionType": "string",
+  "subscriptionTopic": "Text",
+  "matchingFunction": "let populations = {'New Zealand': 4693000, 'Germany': 8267000}; return populations[index];",
+  "matchingInputs": "index"
 }
