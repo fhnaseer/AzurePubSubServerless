@@ -5,7 +5,7 @@
       "name": "Attach to JavaScript Functions",
       "type": "node",
       "request": "attach",
-      "port": 5858,
+      "port": 7071,
       "protocol": "legacy",
       "preLaunchTask": "runFunctionsHost"
     }
