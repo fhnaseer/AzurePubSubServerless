@@ -2,24 +2,24 @@ const common = require('../Shared/common');
 const azureStorage = require('azure-storage');
 const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
-let subscriptionType = '';
+let subscriptionTopic = '';
 let message = '';
 
 module.exports = function (context, req) {
   if (req.body) {
     message = req.body.message;
-    subscriptionType = req.body.subscriptionType;
+    subscriptionType = req.body.subscriptionTopic;
     queryTableData(context);
     common.sendOkResponse(context, 'Messages published,');
     context.done();
   } else {
-    common.sendErrorResponse(context, 'Please pass message and subscriptionType in the request body');
+    common.sendErrorResponse(context, 'Please pass message and subscriptionTopic in the request body');
   }
 };
 
 function queryTableData(context) {
   var tableService = common.getTableService();
-  var query = new azureStorage.TableQuery().select(['PartitionKey', 'RowKey', 'FunctionType', 'MatchingInputs', 'MatchingFunction']).where('PartitionKey eq ?', subscriptionType);
+  var query = new azureStorage.TableQuery().select(['PartitionKey', 'RowKey', 'FunctionType', 'MatchingInputs', 'MatchingFunction']).where('PartitionKey eq ?', subscriptionTopic);
   tableService.queryEntities(common.functionTableName, query, null, function (error, result, response) {
     if (error) {
       common.sendErrorResponse(context, error);
