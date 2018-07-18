@@ -17,7 +17,8 @@ function sendErrorResponse(context, message) {
 function sendQueueConnectionResponse(context, queueName) {
   sendOkResponse(context, {
     connectionString: process.env.ServiceBusConnectionString,
-    queueName: queueName
+    queueName: queueName,
+    subscriberId: queueName
   });
 }
 
@@ -31,12 +32,12 @@ function sendResponse(context, message, statusCode) {
 
 function createMessageQueue(queueName) {
   var serviceBusService = getServiceBusService();
-  serviceBusService.createQueueIfNotExists(queueName, function(error) {});
+  serviceBusService.createQueueIfNotExists(queueName, function (error) { });
 }
 
 function createTable(tableName, context, callback = null) {
   var tableService = getTableService();
-  tableService.createTableIfNotExists(tableName, function(error, result, response) {
+  tableService.createTableIfNotExists(tableName, function (error, result, response) {
     if (error) {
       sendErrorResponse(context, error);
     } else {
